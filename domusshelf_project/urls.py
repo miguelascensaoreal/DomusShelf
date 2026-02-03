@@ -10,17 +10,16 @@ Data: 3 de Fevereiro de 2026
 
 from django.contrib import admin
 from django.urls import path, include
-from django.views.generic import RedirectView
+
+from pharmacy.views import dashboard
 
 urlpatterns = [
     # Painel de administração do Django
     path('admin/', admin.site.urls),
     
     # URLs de autenticação (login, logout, etc.)
-    # O Django já fornece estas views, só precisamos dos templates
     path('accounts/', include('django.contrib.auth.urls')),
     
-    # Página inicial - por agora redireciona para o admin
-    # Mais tarde vai apontar para o dashboard
-    path('', RedirectView.as_view(url='/admin/', permanent=False)),
+    # Página inicial - Dashboard
+    path('', dashboard, name='dashboard'),
 ]

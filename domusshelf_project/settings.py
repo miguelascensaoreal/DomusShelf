@@ -124,5 +124,6 @@ STATIC_URL = 'static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # Configuração de autenticação
-LOGIN_REDIRECT_URL = '/admin/'  # Para onde ir após login (temporário, depois será o dashboard)
+LOGIN_URL = '/accounts/login/'  # Página de login da aplicação
+LOGIN_REDIRECT_URL = '/'  # Para onde ir após login (será o dashboard)
 LOGOUT_REDIRECT_URL = '/accounts/login/'  # Para onde ir após logout

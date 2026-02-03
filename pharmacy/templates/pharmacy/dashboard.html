@@ -1,0 +1,108 @@
+{% extends 'base.html' %}
+
+{% block title %}Dashboard - DomusShelf{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <h1 class="mb-4">
+            <i class="bi bi-house-door"></i> Dashboard
+        </h1>
+    </div>
+</div>
+
+<div class="row g-4">
+    <!-- Card de boas-vindas -->
+    <div class="col-md-6 col-lg-4">
+        <div class="card h-100">
+            <div class="card-body text-center">
+                <i class="bi bi-person-circle display-4 text-danger-dark"></i>
+                <h5 class="card-title mt-3">Olá, {{ user.username }}!</h5>
+                <p class="card-text text-muted">
+                    Bem-vindo ao DomusShelf, o seu gestor de farmácia doméstica.
+                </p>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Card de acesso rápido - Medicamentos -->
+    <div class="col-md-6 col-lg-4">
+        <div class="card h-100">
+            <div class="card-body text-center">
+                <i class="bi bi-capsule display-4 text-danger-dark"></i>
+                <h5 class="card-title mt-3">Medicamentos</h5>
+                <p class="card-text text-muted">
+                    Gerir o catálogo de medicamentos.
+                </p>
+                <a href="/medicamentos/" class="btn btn-outline-primary">
+                    Ver Medicamentos
+                </a>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Card de acesso rápido - Stock -->
+    <div class="col-md-6 col-lg-4">
+        <div class="card h-100">
+            <div class="card-body text-center">
+                <i class="bi bi-box-seam display-4 text-danger-dark"></i>
+                <h5 class="card-title mt-3">Stock</h5>
+                <p class="card-text text-muted">
+                    Ver embalagens e validades.
+                </p>
+                <a href="/embalagens/" class="btn btn-outline-primary">
+                    Ver Stock
+                </a>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Card de acesso rápido - Registar Toma -->
+    <div class="col-md-6 col-lg-4">
+        <div class="card h-100">
+            <div class="card-body text-center">
+                <i class="bi bi-plus-circle display-4 text-danger-dark"></i>
+                <h5 class="card-title mt-3">Registar Toma</h5>
+                <p class="card-text text-muted">
+                    Registar consumo de medicamento.
+                </p>
+                <a href="/consumos/novo/" class="btn btn-primary">
+                    Registar Agora
+                </a>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Card de alertas (placeholder) -->
+    <div class="col-md-6 col-lg-4">
+        <div class="card h-100 border-warning">
+            <div class="card-body text-center">
+                <i class="bi bi-bell display-4 text-warning"></i>
+                <h5 class="card-title mt-3">Alertas</h5>
+                <p class="card-text text-muted">
+                    Medicamentos a expirar em breve.
+                </p>
+                <a href="/alertas/" class="btn btn-outline-warning">
+                    Ver Alertas
+                </a>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Card de preferências -->
+    <div class="col-md-6 col-lg-4">
+        <div class="card h-100">
+            <div class="card-body text-center">
+                <i class="bi bi-gear display-4 text-secondary"></i>
+                <h5 class="card-title mt-3">Preferências</h5>
+                <p class="card-text text-muted">
+                    Configurar alertas e opções.
+                </p>
+                <a href="/preferencias/" class="btn btn-outline-secondary">
+                    Configurar
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
