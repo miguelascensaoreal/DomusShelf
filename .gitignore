@@ -1,0 +1,27 @@
+# Ambiente Virtual Python
+venv/
+env/
+.venv/
+
+# Cache do Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# macOS
+.DS_Store
+
+# IDE / Editores
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Ficheiros de ambiente
+.env
+*.pem
+
+# Logs
+*.log
+
+# Deixei o db.sqlite3 para o Professor analisar o projeto com base no banco de dados.
