@@ -1,22 +1,26 @@
 """
-URL configuration for domusshelf_project project.
+DomusShelf - Configuração de URLs Principal
+============================================
+Este ficheiro define as URLs principais da aplicação.
+É o "mapa" que diz ao Django qual view deve responder a cada URL.
 
-The `urlpatterns` list routes URLs to views. For more information please see:
-    https://docs.djangoproject.com/en/4.2/topics/http/urls/
-Examples:
-Function views
-    1. Add an import:  from my_app import views
-    2. Add a URL to urlpatterns:  path('', views.home, name='home')
-Class-based views
-    1. Add an import:  from other_app.views import Home
-    2. Add a URL to urlpatterns:  path('', Home.as_view(), name='home')
-Including another URLconf
-    1. Import the include() function: from django.urls import include, path
-    2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
+Autor: Miguel Ângelo Ascensão Real
+Data: 3 de Fevereiro de 2026
 """
+
 from django.contrib import admin
-from django.urls import path
+from django.urls import path, include
+from django.views.generic import RedirectView
 
 urlpatterns = [
+    # Painel de administração do Django
     path('admin/', admin.site.urls),
+    
+    # URLs de autenticação (login, logout, etc.)
+    # O Django já fornece estas views, só precisamos dos templates
+    path('accounts/', include('django.contrib.auth.urls')),
+    
+    # Página inicial - por agora redireciona para o admin
+    # Mais tarde vai apontar para o dashboard
+    path('', RedirectView.as_view(url='/admin/', permanent=False)),
 ]
