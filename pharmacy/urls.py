@@ -9,11 +9,9 @@
 # - name é um identificador único usado nos templates para gerar URLs
 
 from django.urls import path
-from . import views  # Importa as views do ficheiro views.py desta app
+from . import views
 
 # O app_name cria um "namespace" para evitar conflitos de nomes.
-# Nos templates, usaremos {% url 'pharmacy:medicamento_lista' %} em vez de
-# apenas {% url 'medicamento_lista' %}. Isto é útil quando temos várias apps.
 app_name = 'pharmacy'
 
 urlpatterns = [
@@ -28,10 +26,26 @@ urlpatterns = [
     
     # Formulário para editar medicamento existente
     # URL completa será: /medicamentos/5/editar/ (onde 5 é o ID)
-    # <int:pk> captura um número inteiro e passa-o à view como argumento 'pk'
     path('<int:pk>/editar/', views.medicamento_editar, name='medicamento_editar'),
     
     # Página de confirmação para eliminar medicamento
     # URL completa será: /medicamentos/5/eliminar/
     path('<int:pk>/eliminar/', views.medicamento_eliminar, name='medicamento_eliminar'),
+    
+    # ==================== EMBALAGENS ====================
+    # Lista de embalagens (stock) ordenada por validade
+    # URL completa será: /embalagens/
+    path('stock/', views.embalagem_lista, name='embalagem_lista'),
+    
+    # Formulário para adicionar nova embalagem ao stock
+    # URL completa será: /embalagens/nova/
+    path('stock/nova/', views.embalagem_criar, name='embalagem_criar'),
+    
+    # Formulário para editar embalagem existente
+    # URL completa será: /embalagens/5/editar/
+    path('stock/<int:pk>/editar/', views.embalagem_editar, name='embalagem_editar'),
+    
+    # Página de confirmação para eliminar embalagem
+    # URL completa será: /embalagens/5/eliminar/
+    path('stock/<int:pk>/eliminar/', views.embalagem_eliminar, name='embalagem_eliminar'),
 ]

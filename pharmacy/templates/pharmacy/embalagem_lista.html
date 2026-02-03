@@ -1,0 +1,133 @@
+{% extends 'base.html' %}
+
+{% block title %}Stock - DomusShelf{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    
+    <!-- Cabeçalho da página -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3 mb-0">
+            <i class="bi bi-box-seam me-2"></i>Stock
+        </h1>
+        <a href="{% url 'pharmacy:embalagem_criar' %}" class="btn btn-primary">
+            <i class="bi bi-plus-lg me-1"></i>Nova Embalagem
+        </a>
+    </div>
+    
+    <!-- Legenda dos indicadores de validade -->
+    {% if embalagens %}
+    <div class="mb-3">
+        <small class="text-muted">
+            <span class="badge bg-danger me-2">Expirado</span>
+            <span class="badge bg-warning text-dark me-2">A expirar em breve</span>
+            <span class="badge bg-success">Dentro da validade</span>
+        </small>
+    </div>
+    {% endif %}
+    
+    <!-- Verificar se existem embalagens -->
+    {% if embalagens %}
+        <!-- Tabela de embalagens (visível em ecrãs médios e grandes) -->
+        <div class="table-responsive d-none d-md-block">
+            <table class="table table-hover">
+                <thead class="table-light">
+                    <tr>
+                        <th>Medicamento</th>
+                        <th>Quantidade</th>
+                        <th>Validade</th>
+                        <th>Lote</th>
+                        <th class="text-end">Acções</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for embalagem in embalagens %}
+                    <tr class="{% if embalagem.esta_expirada %}table-danger{% elif embalagem.dias_para_expirar <= 30 %}table-warning{% endif %}">
+                        <td class="fw-medium">{{ embalagem.medicamento.nome_comercial }}</td>
+                        <td>
+                            {{ embalagem.quantidade_actual }} / {{ embalagem.quantidade_inicial }} {{ embalagem.unidade }}
+                        </td>
+                        <td>
+                            {{ embalagem.data_validade|date:"d/m/Y" }}
+                            {% if embalagem.esta_expirada %}
+                                <span class="badge bg-danger ms-1">Expirado</span>
+                            {% elif embalagem.dias_para_expirar <= 30 %}
+                                <span class="badge bg-warning text-dark ms-1">{{ embalagem.dias_para_expirar }} dias</span>
+                            {% else %}
+                            <span class="badge bg-success ms-1">OK</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ embalagem.lote|default:"-" }}</td>
+                        <td class="text-end">
+                            <a href="{% url 'pharmacy:embalagem_editar' embalagem.pk %}" 
+                               class="btn btn-sm btn-outline-secondary me-1"
+                               title="Editar">
+                                <i class="bi bi-pencil"></i>
+                            </a>
+                            <a href="{% url 'pharmacy:embalagem_eliminar' embalagem.pk %}" 
+                               class="btn btn-sm btn-outline-danger"
+                               title="Eliminar">
+                                <i class="bi bi-trash"></i>
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        
+        <!-- Cards para dispositivos móveis (visível apenas em ecrãs pequenos) -->
+        <div class="d-md-none">
+            {% for embalagem in embalagens %}
+            <div class="card mb-3 {% if embalagem.esta_expirada %}border-danger{% elif embalagem.dias_para_expirar <= 30 %}border-warning{% endif %}">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                        <h5 class="card-title mb-0">{{ embalagem.medicamento.nome_comercial }}</h5>
+                        {% if embalagem.esta_expirada %}
+                            <span class="badge bg-danger">Expirado</span>
+                        {% elif embalagem.dias_para_expirar <= 30 %}
+                            <span class="badge bg-warning text-dark">{{ embalagem.dias_para_expirar }} dias</span>
+                        {% else %}
+                            <span class="badge bg-success">OK</span>
+                        {% endif %}
+                    </div>
+                    <p class="card-text mb-1">
+                        <strong>Quantidade:</strong> {{ embalagem.quantidade_actual }} / {{ embalagem.quantidade_inicial }} {{ embalagem.unidade }}
+                    </p>
+                    <p class="card-text mb-1">
+                        <strong>Validade:</strong> {{ embalagem.data_validade|date:"d/m/Y" }}
+                    </p>
+                    {% if embalagem.lote %}
+                    <p class="card-text mb-2">
+                        <strong>Lote:</strong> {{ embalagem.lote }}
+                    </p>
+                    {% endif %}
+                    <div class="d-flex gap-2">
+                        <a href="{% url 'pharmacy:embalagem_editar' embalagem.pk %}" 
+                           class="btn btn-sm btn-outline-secondary">
+                            <i class="bi bi-pencil me-1"></i>Editar
+                        </a>
+                        <a href="{% url 'pharmacy:embalagem_eliminar' embalagem.pk %}" 
+                           class="btn btn-sm btn-outline-danger">
+                            <i class="bi bi-trash me-1"></i>Eliminar
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        
+    {% else %}
+        <!-- Mensagem quando não há embalagens -->
+        <div class="text-center py-5">
+            <i class="bi bi-box-seam text-muted" style="font-size: 4rem;"></i>
+            <h4 class="mt-3 text-muted">Nenhuma embalagem em stock</h4>
+            <p class="text-muted">Adicione embalagens aos medicamentos do seu catálogo.</p>
+            <a href="{% url 'pharmacy:embalagem_criar' %}" class="btn btn-primary mt-2">
+                <i class="bi bi-plus-lg me-1"></i>Adicionar Embalagem
+            </a>
+        </div>
+    {% endif %}
+    
+</div>
+{% endblock %}

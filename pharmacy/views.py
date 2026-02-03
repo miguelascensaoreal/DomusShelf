@@ -15,8 +15,8 @@ Data: 3 de Fevereiro de 2026
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 
-from .models import Medicamento
-from .forms import MedicamentoForm  # Vamos criar este ficheiro a seguir
+from .models import Medicamento, Embalagem
+from .forms import MedicamentoForm, EmbalagemForm
 
 
 # ==============================================================================
@@ -158,3 +158,119 @@ def medicamento_eliminar(request, pk):
         'medicamento': medicamento,
     }
     return render(request, 'pharmacy/medicamento_confirmar_eliminar.html', context)
+# ==============================================================================
+# CRUD DE EMBALAGENS (STOCK)
+# ==============================================================================
+
+@login_required
+def embalagem_lista(request):
+    """
+    Lista todas as embalagens do utilizador, ordenadas por data de validade.
+    
+    A ordenação segue o princípio FEFO (First Expired, First Out):
+    embalagens que expiram mais cedo aparecem primeiro, incentivando
+    o utilizador a consumir primeiro o que está prestes a expirar.
+    
+    Filtramos por medicamento__utilizador porque a Embalagem não tem
+    relação directa com User — a relação é através do Medicamento.
+    """
+    from datetime import date
+    
+    # Buscar embalagens cujo medicamento pertence ao utilizador actual
+    # O duplo underscore (medicamento__utilizador) atravessa a relação ForeignKey
+    embalagens = Embalagem.objects.filter(
+        medicamento__utilizador=request.user
+    ).select_related('medicamento').order_by('data_validade')
+    
+    # select_related('medicamento') é uma optimização: carrega os dados do
+    # medicamento na mesma query, evitando queries adicionais quando acedemos
+    # a embalagem.medicamento no template (problema N+1)
+    
+    context = {
+        'embalagens': embalagens,
+        'hoje': date.today(),  # Passamos a data de hoje para comparações no template
+    }
+    return render(request, 'pharmacy/embalagem_lista.html', context)
+
+
+@login_required
+def embalagem_criar(request):
+    """
+    Cria uma nova embalagem (adiciona stock).
+    
+    O formulário inclui um dropdown para seleccionar o medicamento.
+    Esse dropdown é filtrado para mostrar apenas medicamentos do utilizador.
+    """
+    if request.method == 'POST':
+        form = EmbalagemForm(request.POST, user=request.user)
+        
+        if form.is_valid():
+            embalagem = form.save(commit=False)
+            # Definir quantidade_actual igual à quantidade_inicial
+            # (embalagem nova, ainda não foi consumida)
+            embalagem.quantidade_actual = embalagem.quantidade_inicial
+            embalagem.save()
+            return redirect('pharmacy:embalagem_lista')
+    else:
+        form = EmbalagemForm(user=request.user)
+    
+    context = {
+        'form': form,
+        'titulo': 'Nova Embalagem',
+    }
+    return render(request, 'pharmacy/embalagem_form.html', context)
+
+
+@login_required
+def embalagem_editar(request, pk):
+    """
+    Edita uma embalagem existente.
+    
+    Segurança: Verificamos que a embalagem pertence a um medicamento
+    do utilizador actual (através da relação medicamento__utilizador).
+    """
+    embalagem = get_object_or_404(
+        Embalagem,
+        pk=pk,
+        medicamento__utilizador=request.user
+    )
+    
+    if request.method == 'POST':
+        form = EmbalagemForm(request.POST, instance=embalagem, user=request.user)
+        
+        if form.is_valid():
+            form.save()
+            return redirect('pharmacy:embalagem_lista')
+    else:
+        form = EmbalagemForm(instance=embalagem, user=request.user)
+    
+    context = {
+        'form': form,
+        'titulo': 'Editar Embalagem',
+        'embalagem': embalagem,
+    }
+    return render(request, 'pharmacy/embalagem_form.html', context)
+
+
+@login_required
+def embalagem_eliminar(request, pk):
+    """
+    Elimina uma embalagem após confirmação.
+    
+    A eliminação de uma embalagem também elimina todos os consumos
+    associados (definido pelo on_delete=CASCADE no modelo).
+    """
+    embalagem = get_object_or_404(
+        Embalagem,
+        pk=pk,
+        medicamento__utilizador=request.user
+    )
+    
+    if request.method == 'POST':
+        embalagem.delete()
+        return redirect('pharmacy:embalagem_lista')
+    
+    context = {
+        'embalagem': embalagem,
+    }
+    return render(request, 'pharmacy/embalagem_confirmar_eliminar.html', context)

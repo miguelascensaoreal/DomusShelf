@@ -11,7 +11,7 @@ Data: 3 de Fevereiro de 2026
 '''
 
 from django import forms
-from .models import Medicamento
+from .models import Medicamento, Embalagem
 
 
 class MedicamentoForm(forms.ModelForm):
@@ -72,3 +72,86 @@ class MedicamentoForm(forms.ModelForm):
             'principio_activo': 'Substância activa do medicamento',
             'forma_farmaceutica': 'Como o medicamento se apresenta',
         }
+        
+class EmbalagemForm(forms.ModelForm):
+    """
+    Formulário para criar e editar embalagens (stock).
+    
+    Este formulário é mais complexo que o MedicamentoForm porque:
+    1. O campo 'medicamento' precisa de ser filtrado por utilizador
+    2. O campo 'data_validade' precisa de um widget de data
+    3. Não incluímos 'quantidade_actual' (é calculado automaticamente)
+    """
+    
+    class Meta:
+        model = Embalagem
+        
+        # Campos a incluir no formulário
+        # NOTA: Não incluímos 'quantidade_actual' porque:
+        # - Na criação: é igual a quantidade_inicial (definido na view)
+        # - Na edição: só muda através de consumos, não manualmente
+        # NOTA: Não incluímos 'criado_em' (preenchido automaticamente)
+        fields = ['medicamento', 'quantidade_inicial', 'unidade', 'data_validade', 'lote']
+        
+        labels = {
+            'medicamento': 'Medicamento',
+            'quantidade_inicial': 'Quantidade',
+            'unidade': 'Unidade',
+            'data_validade': 'Data de Validade',
+            'lote': 'Lote',
+        }
+        
+        widgets = {
+            'medicamento': forms.Select(attrs={
+                'class': 'form-select',  # form-select é a classe Bootstrap para dropdowns
+            }),
+            'quantidade_inicial': forms.NumberInput(attrs={
+                'class': 'form-control',
+                'min': '1',  # Não faz sentido ter quantidade 0 ou negativa
+                'placeholder': 'Ex: 20',
+            }),
+            'unidade': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Ex: comprimidos, ml, doses',
+            }),
+            'data_validade': forms.DateInput(attrs={
+                'class': 'form-control',
+                'type': 'date',  # Isto faz o browser mostrar um date picker nativo
+            }),
+            'lote': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Ex: ABC123 (opcional)',
+            }),
+        }
+        
+        help_texts = {
+            'quantidade_inicial': 'Número de unidades na embalagem',
+            'lote': 'Número do lote (encontra-se na embalagem)',
+        }
+    
+    def __init__(self, *args, **kwargs):
+        """
+        Construtor personalizado para receber o utilizador.
+        
+        Este método é chamado quando criamos uma instância do formulário.
+        Usamo-lo para filtrar o queryset do campo 'medicamento', mostrando
+        apenas os medicamentos que pertencem ao utilizador actual.
+        
+        O padrão é:
+        1. Extrair o 'user' dos kwargs (argumentos nomeados)
+        2. Chamar o __init__ da classe pai (super)
+        3. Modificar o queryset do campo que queremos filtrar
+        """
+        # Extrair o utilizador dos kwargs ANTES de chamar super()
+        # O pop() remove o 'user' do dicionário, evitando erro no super()
+        # (porque o ModelForm não espera um argumento 'user')
+        user = kwargs.pop('user', None)
+        
+        # Chamar o construtor da classe pai
+        super().__init__(*args, **kwargs)
+        
+        # Filtrar o dropdown de medicamentos para mostrar apenas os do utilizador
+        if user:
+            self.fields['medicamento'].queryset = Medicamento.objects.filter(
+                utilizador=user
+            ).order_by('nome_comercial')

@@ -1,0 +1,70 @@
+{% extends 'base.html' %}
+
+{% block title %}Eliminar Embalagem - DomusShelf{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    
+    <div class="row justify-content-center">
+        <div class="col-lg-5">
+            
+            <div class="card border-danger">
+                <div class="card-header bg-danger text-white">
+                    <h5 class="mb-0">
+                        <i class="bi bi-exclamation-triangle me-2"></i>Confirmar Eliminação
+                    </h5>
+                </div>
+                <div class="card-body">
+                    
+                    <p class="mb-3">
+                        Tem a certeza que deseja eliminar esta embalagem?
+                    </p>
+                    
+                    <!-- Detalhes da embalagem a eliminar -->
+                    <div class="card bg-light mb-3">
+                        <div class="card-body">
+                            <p class="mb-1">
+                                <strong>Medicamento:</strong> {{ embalagem.medicamento.nome_comercial }}
+                            </p>
+                            <p class="mb-1">
+                                <strong>Quantidade:</strong> {{ embalagem.quantidade_actual }} / {{ embalagem.quantidade_inicial }} {{ embalagem.unidade }}
+                            </p>
+                            <p class="mb-1">
+                                <strong>Validade:</strong> {{ embalagem.data_validade|date:"d/m/Y" }}
+                            </p>
+                            {% if embalagem.lote %}
+                            <p class="mb-0">
+                                <strong>Lote:</strong> {{ embalagem.lote }}
+                            </p>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="alert alert-warning mb-3">
+                        <i class="bi bi-info-circle me-2"></i>
+                        <strong>Atenção:</strong> Esta acção irá também eliminar todos os 
+                        registos de consumo associados a esta embalagem.
+                        Esta operação não pode ser revertida.
+                    </div>
+                    
+                    <form method="post">
+                        {% csrf_token %}
+                        
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-danger">
+                                <i class="bi bi-trash me-1"></i>Sim, Eliminar
+                            </button>
+                            <a href="{% url 'pharmacy:embalagem_lista' %}" class="btn btn-outline-secondary">
+                                Cancelar
+                            </a>
+                        </div>
+                    </form>
+                    
+                </div>
+            </div>
+            
+        </div>
+    </div>
+    
+</div>
+{% endblock %}

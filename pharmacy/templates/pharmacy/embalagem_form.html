@@ -1,0 +1,128 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ titulo }} - DomusShelf{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    
+    <!-- Cabeçalho da página -->
+    <div class="mb-4">
+        <h1 class="h3">
+            <i class="bi bi-box-seam me-2"></i>{{ titulo }}
+        </h1>
+    </div>
+    
+    <!-- Formulário -->
+    <div class="row">
+        <div class="col-lg-6">
+            <div class="card">
+                <div class="card-body">
+                    
+                    <form method="post">
+                        {% csrf_token %}
+                        
+                        <!-- Campo: Medicamento (dropdown) -->
+                        <div class="mb-3">
+                            <label for="{{ form.medicamento.id_for_label }}" class="form-label">
+                                {{ form.medicamento.label }}
+                                <span class="text-danger">*</span>
+                            </label>
+                            {{ form.medicamento }}
+                            {% if form.medicamento.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.medicamento.errors.0 }}
+                                </div>
+                            {% endif %}
+                            <div class="form-text">
+                                <a href="{% url 'pharmacy:medicamento_criar' %}">
+                                    <i class="bi bi-plus-lg me-1"></i>Adicionar novo medicamento
+                                </a>
+                            </div>
+                        </div>
+                        
+                        <!-- Campos de quantidade e unidade na mesma linha -->
+                        <div class="row">
+                            <div class="col-6">
+                                <!-- Campo: Quantidade Inicial -->
+                                <div class="mb-3">
+                                    <label for="{{ form.quantidade_inicial.id_for_label }}" class="form-label">
+                                        {{ form.quantidade_inicial.label }}
+                                        <span class="text-danger">*</span>
+                                    </label>
+                                    {{ form.quantidade_inicial }}
+                                    {% if form.quantidade_inicial.errors %}
+                                        <div class="invalid-feedback d-block">
+                                            {{ form.quantidade_inicial.errors.0 }}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <!-- Campo: Unidade -->
+                                <div class="mb-3">
+                                    <label for="{{ form.unidade.id_for_label }}" class="form-label">
+                                        {{ form.unidade.label }}
+                                        <span class="text-danger">*</span>
+                                    </label>
+                                    {{ form.unidade }}
+                                    {% if form.unidade.errors %}
+                                        <div class="invalid-feedback d-block">
+                                            {{ form.unidade.errors.0 }}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Campo: Data de Validade -->
+                        <div class="mb-3">
+                            <label for="{{ form.data_validade.id_for_label }}" class="form-label">
+                                {{ form.data_validade.label }}
+                                <span class="text-danger">*</span>
+                            </label>
+                            {{ form.data_validade }}
+                            {% if form.data_validade.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.data_validade.errors.0 }}
+                                </div>
+                            {% endif %}
+                            <div class="form-text">
+                                Encontra esta informação na embalagem do medicamento
+                            </div>
+                        </div>
+                        
+                        <!-- Campo: Lote (opcional) -->
+                        <div class="mb-3">
+                            <label for="{{ form.lote.id_for_label }}" class="form-label">
+                                {{ form.lote.label }}
+                            </label>
+                            {{ form.lote }}
+                            {% if form.lote.help_text %}
+                                <div class="form-text">{{ form.lote.help_text }}</div>
+                            {% endif %}
+                            {% if form.lote.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.lote.errors.0 }}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <!-- Botões de acção -->
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-check-lg me-1"></i>Guardar
+                            </button>
+                            <a href="{% url 'pharmacy:embalagem_lista' %}" class="btn btn-outline-secondary">
+                                Cancelar
+                            </a>
+                        </div>
+                        
+                    </form>
+                    
+                </div>
+            </div>
+        </div>
+    </div>
+    
+</div>
+{% endblock %}
