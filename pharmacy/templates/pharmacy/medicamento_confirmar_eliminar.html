@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+
+{% block title %}Eliminar Medicamento - DomusShelf{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    
+    <div class="row justify-content-center">
+        <div class="col-lg-5">
+            
+            <div class="card border-danger">
+                <div class="card-header bg-danger text-white">
+                    <h5 class="mb-0">
+                        <i class="bi bi-exclamation-triangle me-2"></i>Confirmar Eliminação
+                    </h5>
+                </div>
+                <div class="card-body">
+                    
+                    <p class="mb-3">
+                        Tem a certeza que deseja eliminar o medicamento 
+                        <strong>{{ medicamento.nome_comercial }}</strong>?
+                    </p>
+                    
+                    <div class="alert alert-warning mb-3">
+                        <i class="bi bi-info-circle me-2"></i>
+                        <strong>Atenção:</strong> Esta acção irá também eliminar todas as 
+                        embalagens e registos de consumo associados a este medicamento.
+                        Esta operação não pode ser revertida.
+                    </div>
+                    
+                    <!-- 
+                    Usamos um formulário POST para a eliminação por razões de segurança.
+                    Pedidos GET não devem modificar dados (são para "ler", não "escrever").
+                    Isto também previne que bots ou links maliciosos eliminem dados
+                    simplesmente ao aceder a um URL.
+                    -->
+                    <form method="post">
+                        {% csrf_token %}
+                        
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-danger">
+                                <i class="bi bi-trash me-1"></i>Sim, Eliminar
+                            </button>
+                            <a href="{% url 'pharmacy:medicamento_lista' %}" class="btn btn-outline-secondary">
+                                Cancelar
+                            </a>
+                        </div>
+                    </form>
+                    
+                </div>
+            </div>
+            
+        </div>
+    </div>
+    
+</div>
+{% endblock %}

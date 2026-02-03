@@ -1,0 +1,95 @@
+{% extends 'base.html' %}
+
+{% block title %}Medicamentos - DomusShelf{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    
+    <!-- Cabeçalho da página -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3 mb-0">
+            <i class="bi bi-capsule me-2"></i>Medicamentos
+        </h1>
+        <a href="{% url 'pharmacy:medicamento_criar' %}" class="btn btn-primary">
+            <i class="bi bi-plus-lg me-1"></i>Novo Medicamento
+        </a>
+    </div>
+    
+    <!-- Verificar se existem medicamentos -->
+    {% if medicamentos %}
+        <!-- Tabela de medicamentos (visível em ecrãs médios e grandes) -->
+        <div class="table-responsive d-none d-md-block">
+            <table class="table table-hover">
+                <thead class="table-light">
+                    <tr>
+                        <th>Nome Comercial</th>
+                        <th>Princípio Activo</th>
+                        <th>Forma</th>
+                        <th class="text-end">Acções</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for medicamento in medicamentos %}
+                    <tr>
+                        <td class="fw-medium">{{ medicamento.nome_comercial }}</td>
+                        <td>{{ medicamento.principio_activo|default:"-" }}</td>
+                        <td>{{ medicamento.forma_farmaceutica|default:"-" }}</td>
+                        <td class="text-end">
+                            <a href="{% url 'pharmacy:medicamento_editar' medicamento.pk %}" 
+                               class="btn btn-sm btn-outline-secondary me-1"
+                               title="Editar">
+                                <i class="bi bi-pencil"></i>
+                            </a>
+                            <a href="{% url 'pharmacy:medicamento_eliminar' medicamento.pk %}" 
+                               class="btn btn-sm btn-outline-danger"
+                               title="Eliminar">
+                                <i class="bi bi-trash"></i>
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        
+        <!-- Cards para dispositivos móveis (visível apenas em ecrãs pequenos) -->
+        <div class="d-md-none">
+            {% for medicamento in medicamentos %}
+            <div class="card mb-3">
+                <div class="card-body">
+                    <h5 class="card-title mb-1">{{ medicamento.nome_comercial }}</h5>
+                    <p class="card-text text-muted small mb-2">
+                        {{ medicamento.principio_activo|default:"Princípio activo não especificado" }}
+                        {% if medicamento.forma_farmaceutica %}
+                            · {{ medicamento.forma_farmaceutica }}
+                        {% endif %}
+                    </p>
+                    <div class="d-flex gap-2">
+                        <a href="{% url 'pharmacy:medicamento_editar' medicamento.pk %}" 
+                           class="btn btn-sm btn-outline-secondary">
+                            <i class="bi bi-pencil me-1"></i>Editar
+                        </a>
+                        <a href="{% url 'pharmacy:medicamento_eliminar' medicamento.pk %}" 
+                           class="btn btn-sm btn-outline-danger">
+                            <i class="bi bi-trash me-1"></i>Eliminar
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        
+    {% else %}
+        <!-- Mensagem quando não há medicamentos -->
+        <div class="text-center py-5">
+            <i class="bi bi-capsule text-muted" style="font-size: 4rem;"></i>
+            <h4 class="mt-3 text-muted">Nenhum medicamento registado</h4>
+            <p class="text-muted">Comece por adicionar os medicamentos que tem em casa.</p>
+            <a href="{% url 'pharmacy:medicamento_criar' %}" class="btn btn-primary mt-2">
+                <i class="bi bi-plus-lg me-1"></i>Adicionar Medicamento
+            </a>
+        </div>
+    {% endif %}
+    
+</div>
+{% endblock %}

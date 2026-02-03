@@ -1,0 +1,117 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ titulo }} - DomusShelf{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    
+    <!-- Cabeçalho da página -->
+    <div class="mb-4">
+        <h1 class="h3">
+            <i class="bi bi-capsule me-2"></i>{{ titulo }}
+        </h1>
+    </div>
+    
+    <!-- Formulário -->
+    <div class="row">
+        <div class="col-lg-6">
+            <div class="card">
+                <div class="card-body">
+                    
+                    <!-- 
+                    O atributo method="post" indica que os dados serão enviados no corpo do pedido.
+                    O action="" (vazio) significa que o formulário submete para a mesma URL.
+                    -->
+                    <form method="post">
+                        
+                        <!-- 
+                        O csrf_token é OBRIGATÓRIO em todos os formulários POST no Django.
+                        CSRF = Cross-Site Request Forgery (um tipo de ataque).
+                        Este token prova que o formulário foi gerado pelo nosso site
+                        e não por um site malicioso a tentar enganar o utilizador.
+                        -->
+                        {% csrf_token %}
+                        
+                        <!-- 
+                        Renderizamos cada campo do formulário manualmente para ter
+                        controlo total sobre o HTML e aplicar estilos Bootstrap.
+                        -->
+                        
+                        <!-- Campo: Nome Comercial -->
+                        <div class="mb-3">
+                            <label for="{{ form.nome_comercial.id_for_label }}" class="form-label">
+                                {{ form.nome_comercial.label }}
+                                <span class="text-danger">*</span>
+                            </label>
+                            {{ form.nome_comercial }}
+                            {% if form.nome_comercial.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.nome_comercial.errors.0 }}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <!-- Campo: Princípio Activo -->
+                        <div class="mb-3">
+                            <label for="{{ form.principio_activo.id_for_label }}" class="form-label">
+                                {{ form.principio_activo.label }}
+                            </label>
+                            {{ form.principio_activo }}
+                            {% if form.principio_activo.help_text %}
+                                <div class="form-text">{{ form.principio_activo.help_text }}</div>
+                            {% endif %}
+                            {% if form.principio_activo.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.principio_activo.errors.0 }}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <!-- Campo: Forma Farmacêutica -->
+                        <div class="mb-3">
+                            <label for="{{ form.forma_farmaceutica.id_for_label }}" class="form-label">
+                                {{ form.forma_farmaceutica.label }}
+                            </label>
+                            {{ form.forma_farmaceutica }}
+                            {% if form.forma_farmaceutica.help_text %}
+                                <div class="form-text">{{ form.forma_farmaceutica.help_text }}</div>
+                            {% endif %}
+                            {% if form.forma_farmaceutica.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.forma_farmaceutica.errors.0 }}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <!-- Campo: Observações -->
+                        <div class="mb-3">
+                            <label for="{{ form.observacoes.id_for_label }}" class="form-label">
+                                {{ form.observacoes.label }}
+                            </label>
+                            {{ form.observacoes }}
+                            {% if form.observacoes.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.observacoes.errors.0 }}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <!-- Botões de acção -->
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-check-lg me-1"></i>Guardar
+                            </button>
+                            <a href="{% url 'pharmacy:medicamento_lista' %}" class="btn btn-outline-secondary">
+                                Cancelar
+                            </a>
+                        </div>
+                        
+                    </form>
+                    
+                </div>
+            </div>
+        </div>
+    </div>
+    
+</div>
+{% endblock %}

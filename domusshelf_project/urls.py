@@ -20,6 +20,9 @@ urlpatterns = [
     # URLs de autenticação (login, logout, etc.)
     path('accounts/', include('django.contrib.auth.urls')),
     
+     # URLs da aplicação pharmacy (medicamentos)
+    path('medicamentos/', include('pharmacy.urls')),
+
     # Página inicial - Dashboard
     path('', dashboard, name='dashboard'),
 ]
