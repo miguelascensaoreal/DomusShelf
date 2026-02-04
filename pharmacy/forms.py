@@ -114,10 +114,13 @@ class EmbalagemForm(forms.ModelForm):
                 'class': 'form-control',
                 'placeholder': 'Ex: comprimidos, ml, doses',
             }),
-            'data_validade': forms.DateInput(attrs={
-                'class': 'form-control',
-                'type': 'date',  # Isto faz o browser mostrar um date picker nativo
-            }),
+            'data_validade': forms.DateInput(
+                format='%d/%m/%Y',
+                attrs={
+                    'class': 'form-control',
+                    'placeholder': 'dd/mm/aaaa',
+                }
+            ),
             'lote': forms.TextInput(attrs={
                 'class': 'form-control',
                 'placeholder': 'Ex: ABC123 (opcional)',
@@ -127,6 +130,7 @@ class EmbalagemForm(forms.ModelForm):
         help_texts = {
             'quantidade_inicial': 'Número de unidades na embalagem',
             'lote': 'Número do lote (encontra-se na embalagem)',
+            'data_validade': 'Formato: dd/mm/aaaa (exemplo: 05/02/2026)',
         }
     
     def __init__(self, *args, **kwargs):
