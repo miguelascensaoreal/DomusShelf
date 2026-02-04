@@ -3,104 +3,87 @@
 {% block title %}Dashboard - DomusShelf{% endblock %}
 
 {% block content %}
-<div class="row">
-    <div class="col-12">
-        <h1 class="mb-4">
-            <i class="bi bi-house-door"></i> Dashboard
-        </h1>
-    </div>
-</div>
+<h2 class="mb-4"><i class="bi bi-house-door"></i> Dashboard</h2>
 
 <div class="row g-4">
-    <!-- Card de boas-vindas -->
+    <!-- Card Boas-vindas -->
     <div class="col-md-6 col-lg-4">
         <div class="card h-100">
             <div class="card-body text-center">
-                <i class="bi bi-person-circle display-4 text-danger-dark"></i>
+                <i class="bi bi-person-circle text-danger-dark" style="font-size: 3rem;"></i>
                 <h5 class="card-title mt-3">Olá, {{ user.username }}!</h5>
-                <p class="card-text text-muted">
-                    Bem-vindo ao DomusShelf, o seu gestor de farmácia doméstica.
-                </p>
+                <p class="card-text text-muted">Bem-vindo ao DomusShelf, o seu gestor de farmácia doméstica.</p>
             </div>
         </div>
     </div>
-    
-    <!-- Card de acesso rápido - Medicamentos -->
+
+    <!-- Card Medicamentos -->
     <div class="col-md-6 col-lg-4">
         <div class="card h-100">
             <div class="card-body text-center">
-                <i class="bi bi-capsule display-4 text-danger-dark"></i>
+                <i class="bi bi-capsule text-danger-dark" style="font-size: 3rem;"></i>
                 <h5 class="card-title mt-3">Medicamentos</h5>
-                <p class="card-text text-muted">
-                    Gerir o catálogo de medicamentos.
+                <p class="card-text">
+                    <span class="fs-4 fw-bold">{{ total_medicamentos }}</span> no catálogo
                 </p>
-                <a href="{% url 'pharmacy:medicamento_lista' %}" class="btn btn-outline-primary">
-                    Ver Medicamentos
-                </a>
+                <a href="{% url 'pharmacy:medicamento_lista' %}" class="btn btn-outline-primary">Ver Medicamentos</a>
             </div>
         </div>
     </div>
-    
-    <!-- Card de acesso rápido - Stock -->
+
+    <!-- Card Stock -->
     <div class="col-md-6 col-lg-4">
         <div class="card h-100">
             <div class="card-body text-center">
-                <i class="bi bi-box-seam display-4 text-danger-dark"></i>
+                <i class="bi bi-box-seam text-danger-dark" style="font-size: 3rem;"></i>
                 <h5 class="card-title mt-3">Stock</h5>
-                <p class="card-text text-muted">
-                    Ver embalagens e validades.
+                <p class="card-text">
+                    <span class="fs-4 fw-bold">{{ total_embalagens }}</span> embalagens activas
                 </p>
-                <a href="{% url 'pharmacy:embalagem_lista' %}" class="btn btn-outline-primary">
-                    Ver Stock
-                </a>
+                <a href="{% url 'pharmacy:embalagem_lista' %}" class="btn btn-outline-primary">Ver Stock</a>
             </div>
         </div>
     </div>
-    
-    <!-- Card de acesso rápido - Registar Toma -->
+
+    <!-- Card Registar Toma -->
     <div class="col-md-6 col-lg-4">
         <div class="card h-100">
             <div class="card-body text-center">
-                <i class="bi bi-plus-circle display-4 text-danger-dark"></i>
+                <i class="bi bi-plus-circle text-danger-dark" style="font-size: 3rem;"></i>
                 <h5 class="card-title mt-3">Registar Toma</h5>
-                <p class="card-text text-muted">
-                    Registar consumo de medicamento.
-                </p>
-                <a href="{% url 'pharmacy:consumo_criar' %}" class="btn btn-primary">
-                    Registar Agora
-                </a>
+                <p class="card-text text-muted">Registar consumo de medicamento.</p>
+                <a href="{% url 'pharmacy:consumo_criar' %}" class="btn btn-primary">Registar Agora</a>
             </div>
         </div>
     </div>
-    
-    <!-- Card de alertas (placeholder) -->
+
+    <!-- Card Alertas -->
     <div class="col-md-6 col-lg-4">
-        <div class="card h-100 border-warning">
+        <div class="card h-100 {% if expiradas or a_expirar %}border-warning{% endif %}">
             <div class="card-body text-center">
-                <i class="bi bi-bell display-4 text-warning"></i>
+                <i class="bi bi-bell {% if expiradas %}text-danger{% elif a_expirar %}text-warning{% else %}text-muted{% endif %}" style="font-size: 3rem;"></i>
                 <h5 class="card-title mt-3">Alertas</h5>
-                <p class="card-text text-muted">
-                    Medicamentos a expirar em breve.
+                <p class="card-text">
+                    {% if expiradas or a_expirar %}
+                        {% if expiradas %}<span class="badge bg-danger">{{ expiradas }} expiradas</span>{% endif %}
+                        {% if a_expirar %}<span class="badge bg-warning text-dark">{{ a_expirar }} a expirar</span>{% endif %}
+                    {% else %}
+                        <span class="text-success"><i class="bi bi-check-circle"></i> Tudo OK</span>
+                    {% endif %}
                 </p>
-                <a href="/alertas/" class="btn btn-outline-warning">
-                    Ver Alertas
-                </a>
+                <a href="{% url 'pharmacy:alertas_lista' %}" class="btn btn-outline-warning">Ver Alertas</a>
             </div>
         </div>
     </div>
-    
-    <!-- Card de preferências -->
+
+    <!-- Card Preferências -->
     <div class="col-md-6 col-lg-4">
         <div class="card h-100">
             <div class="card-body text-center">
-                <i class="bi bi-gear display-4 text-secondary"></i>
+                <i class="bi bi-gear text-secondary" style="font-size: 3rem;"></i>
                 <h5 class="card-title mt-3">Preferências</h5>
-                <p class="card-text text-muted">
-                    Configurar alertas e opções.
-                </p>
-                <a href="/preferencias/" class="btn btn-outline-secondary">
-                    Configurar
-                </a>
+                <p class="card-text text-muted">Alertar {{ dias_alerta }} dias antes da validade.</p>
+                <a href="/preferencias/" class="btn btn-outline-secondary">Configurar</a>
             </div>
         </div>
     </div>

@@ -143,7 +143,7 @@
                 <ul class="navbar-nav">
                     <!-- Sino de alertas -->
                     <li class="nav-item">
-                        <a class="nav-link position-relative" href="/alertas/">
+                        <a class="nav-link position-relative" href="{% url 'pharmacy:alertas_lista' %}">
                             <i class="bi bi-bell fs-5"></i>
                             <!-- O badge será preenchido dinamicamente mais tarde -->
                             {% if alertas_count and alertas_count > 0 %}

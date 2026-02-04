@@ -51,4 +51,7 @@ urlpatterns = [
 
     # Formulário para adicionar mbalagem existente
     path('consumo/novo/', views.consumo_criar, name='consumo_criar'),
+
+    # Lista de alertas de embalagens expiradas ou a expirar
+    path('alertas/', views.alertas_lista, name='alertas_lista'),
 ]

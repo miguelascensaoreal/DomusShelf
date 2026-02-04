@@ -17,7 +17,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.utils import timezone
 
-from .models import Medicamento, Embalagem
+from .models import Medicamento, Embalagem, Preferencias
 from .forms import MedicamentoForm, EmbalagemForm, ConsumoForm
 
 
@@ -29,9 +29,50 @@ from .forms import MedicamentoForm, EmbalagemForm, ConsumoForm
 def dashboard(request):
     """
     Página inicial da aplicação.
-    Mostra uma visão geral com cards de acesso rápido às funcionalidades.
+    Mostra estatísticas e uma visão geral do estado da farmácia.
     """
-    return render(request, 'pharmacy/dashboard.html')
+    from datetime import date, timedelta
+    
+    hoje = date.today()
+    
+    # Obter preferências do utilizador
+    try:
+        prefs = Preferencias.objects.get(utilizador=request.user)
+        dias_alerta = prefs.dias_alerta_antes
+    except Preferencias.DoesNotExist:
+        dias_alerta = 30
+    
+    data_limite = hoje + timedelta(days=dias_alerta)
+    
+    # Estatísticas
+    total_medicamentos = Medicamento.objects.filter(
+        utilizador=request.user
+    ).count()
+    
+    embalagens_user = Embalagem.objects.filter(
+        medicamento__utilizador=request.user,
+        quantidade_actual__gt=0
+    )
+    
+    total_embalagens = embalagens_user.count()
+    
+    expiradas = embalagens_user.filter(
+        data_validade__lt=hoje
+    ).count()
+    
+    a_expirar = embalagens_user.filter(
+        data_validade__gte=hoje,
+        data_validade__lte=data_limite
+    ).count()
+    
+    context = {
+        'total_medicamentos': total_medicamentos,
+        'total_embalagens': total_embalagens,
+        'expiradas': expiradas,
+        'a_expirar': a_expirar,
+        'dias_alerta': dias_alerta,
+    }
+    return render(request, 'pharmacy/dashboard.html', context)
 
 
 # ==============================================================================
@@ -302,3 +343,46 @@ def consumo_criar(request):
         form = ConsumoForm(user=request.user)
     
     return render(request, 'pharmacy/consumo_form.html', {'form': form})
+
+@login_required
+def alertas_lista(request):
+    """
+    Página que lista todas as embalagens expiradas ou a expirar em breve.
+    Separadas em duas secções: expiradas e a expirar.
+    """
+    from datetime import date, timedelta
+    
+    hoje = date.today()
+    
+    # Obter preferências do utilizador
+    try:
+        prefs = Preferencias.objects.get(utilizador=request.user)
+        dias_alerta = prefs.dias_alerta_antes
+    except Preferencias.DoesNotExist:
+        dias_alerta = 30
+    
+    data_limite = hoje + timedelta(days=dias_alerta)
+    
+    # Embalagens do utilizador com stock
+    embalagens_user = Embalagem.objects.filter(
+        medicamento__utilizador=request.user,
+        quantidade_actual__gt=0
+    ).select_related('medicamento')
+    
+    # Separar em expiradas e a expirar
+    expiradas = embalagens_user.filter(
+        data_validade__lt=hoje
+    ).order_by('data_validade')
+    
+    a_expirar = embalagens_user.filter(
+        data_validade__gte=hoje,
+        data_validade__lte=data_limite
+    ).order_by('data_validade')
+    
+    context = {
+        'expiradas': expiradas,
+        'a_expirar': a_expirar,
+        'dias_alerta': dias_alerta,
+        'hoje': hoje,
+    }
+    return render(request, 'pharmacy/alertas_lista.html', context)

@@ -1,0 +1,91 @@
+{% extends 'base.html' %}
+
+{% block title %}Alertas - DomusShelf{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2><i class="bi bi-bell text-warning"></i> Alertas de Validade</h2>
+</div>
+
+<p class="text-muted mb-4">
+    A mostrar embalagens expiradas e a expirar nos próximos {{ dias_alerta }} dias.
+</p>
+
+{% if not expiradas and not a_expirar %}
+<div class="alert alert-success">
+    <i class="bi bi-check-circle"></i> Não há alertas! Todas as embalagens estão dentro da validade.
+</div>
+{% else %}
+
+    {% if expiradas %}
+    <div class="card mb-4">
+        <div class="card-header bg-danger text-white">
+            <i class="bi bi-x-circle"></i> Expiradas ({{ expiradas|length }})
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Medicamento</th>
+                            <th>Validade</th>
+                            <th>Stock</th>
+                            <th>Lote</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for emb in expiradas %}
+                        <tr>
+                            <td>{{ emb.medicamento.nome_comercial }}</td>
+                            <td><span class="badge bg-danger">{{ emb.data_validade|date:"d/m/Y" }}</span></td>
+                            <td>{{ emb.quantidade_actual }} {{ emb.unidade }}</td>
+                            <td>{{ emb.lote|default:"-" }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    {% if a_expirar %}
+    <div class="card mb-4">
+        <div class="card-header bg-warning text-dark">
+            <i class="bi bi-exclamation-triangle"></i> A Expirar em Breve ({{ a_expirar|length }})
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Medicamento</th>
+                            <th>Validade</th>
+                            <th>Dias Restantes</th>
+                            <th>Stock</th>
+                            <th>Lote</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for emb in a_expirar %}
+                        <tr>
+                            <td>{{ emb.medicamento.nome_comercial }}</td>
+                            <td><span class="badge bg-warning text-dark">{{ emb.data_validade|date:"d/m/Y" }}</span></td>
+                            <td>{{ emb.dias_para_expirar }} dias</td>
+                            <td>{{ emb.quantidade_actual }} {{ emb.unidade }}</td>
+                            <td>{{ emb.lote|default:"-" }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+{% endif %}
+
+<a href="{% url 'pharmacy:embalagem_lista' %}" class="btn btn-outline-secondary">
+    <i class="bi bi-arrow-left"></i> Voltar ao Stock
+</a>
+{% endblock %}
