@@ -54,4 +54,8 @@ urlpatterns = [
 
     # Lista de alertas de embalagens expiradas ou a expirar
     path('alertas/', views.alertas_lista, name='alertas_lista'),
+    
+    # Formulário para editar preferências do utilizador
+    path('preferencias/', views.preferencias_editar, name='preferencias_editar'),
+    
 ]

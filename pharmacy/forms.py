@@ -11,7 +11,7 @@ Data: 3 de Fevereiro de 2026
 '''
 
 from django import forms
-from .models import Medicamento, Embalagem, Consumo
+from .models import Medicamento, Embalagem, Consumo, Preferencias
 
 
 class MedicamentoForm(forms.ModelForm):
@@ -205,3 +205,29 @@ class ConsumoForm(forms.ModelForm):
                 raise forms.ValidationError('A quantidade deve ser maior que zero.')
         
         return cleaned_data
+    
+class PreferenciasForm(forms.ModelForm):
+    """
+    Formulário para editar as preferências do utilizador.
+    
+    Este é um formulário muito simples porque o modelo Preferencias
+    só tem um campo editável: dias_alerta_antes.
+    """
+    
+    class Meta:
+        model = Preferencias
+        fields = ['dias_alerta_antes']
+        labels = {
+            'dias_alerta_antes': 'Dias de antecedência para alertas',
+        }
+        widgets = {
+            'dias_alerta_antes': forms.NumberInput(attrs={
+                'class': 'form-control',
+                'min': '1',
+                'max': '365',
+                'placeholder': 'Ex: 30',
+            }),
+        }
+        help_texts = {
+            'dias_alerta_antes': 'Número de dias antes da validade para receber alertas',
+        }

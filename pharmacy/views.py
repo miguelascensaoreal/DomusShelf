@@ -17,8 +17,8 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.utils import timezone
 
-from .models import Medicamento, Embalagem, Preferencias
-from .forms import MedicamentoForm, EmbalagemForm, ConsumoForm
+from .models import Medicamento, Embalagem, Consumo, Preferencias
+from .forms import MedicamentoForm, EmbalagemForm, ConsumoForm, PreferenciasForm
 
 
 # ==============================================================================
@@ -386,3 +386,39 @@ def alertas_lista(request):
         'hoje': hoje,
     }
     return render(request, 'pharmacy/alertas_lista.html', context)
+
+@login_required
+def preferencias_editar(request):
+    """
+    View para editar as preferências do utilizador.
+    
+    CONCEITO NOVO: get_or_create()
+    Este método tenta obter um objecto da base de dados.
+    Se não existir, cria-o automaticamente.
+    
+    Retorna uma tupla: (objecto, foi_criado)
+    - objecto: a instância do modelo
+    - foi_criado: True se criou novo, False se já existia
+    
+    Isto é útil aqui porque um utilizador novo pode não ter
+    preferências ainda criadas.
+    """
+    # Obter ou criar as preferências do utilizador
+    preferencias, criado = Preferencias.objects.get_or_create(
+        utilizador=request.user,
+        defaults={'dias_alerta_antes': 30}  # Valores por defeito se criar novo
+    )
+    
+    if request.method == 'POST':
+        form = PreferenciasForm(request.POST, instance=preferencias)
+        if form.is_valid():
+            form.save()
+            # Redirecionar para o dashboard após guardar
+            return redirect('dashboard')
+    else:
+        # GET: mostrar formulário preenchido com valores actuais
+        form = PreferenciasForm(instance=preferencias)
+    
+    return render(request, 'pharmacy/preferencias_form.html', {
+        'form': form,
+    })

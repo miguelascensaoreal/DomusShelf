@@ -83,7 +83,7 @@
                 <i class="bi bi-gear text-secondary" style="font-size: 3rem;"></i>
                 <h5 class="card-title mt-3">Preferências</h5>
                 <p class="card-text text-muted">Alertar {{ dias_alerta }} dias antes da validade.</p>
-                <a href="/preferencias/" class="btn btn-outline-secondary">Configurar</a>
+                <a href="{% url 'pharmacy:preferencias_editar' %}" class="btn btn-outline-secondary">Configurar</a>
             </div>
         </div>
     </div>
