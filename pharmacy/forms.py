@@ -11,7 +11,7 @@ Data: 3 de Fevereiro de 2026
 '''
 
 from django import forms
-from .models import Medicamento, Embalagem
+from .models import Medicamento, Embalagem, Consumo
 
 
 class MedicamentoForm(forms.ModelForm):
@@ -155,3 +155,53 @@ class EmbalagemForm(forms.ModelForm):
             self.fields['medicamento'].queryset = Medicamento.objects.filter(
                 utilizador=user
             ).order_by('nome_comercial')
+
+class ConsumoForm(forms.ModelForm):
+    """
+    Formulário para registar consumos/tomas de medicamentos.
+    Filtra as embalagens para mostrar apenas as do utilizador actual
+    e valida que não se consome mais do que a quantidade disponível.
+    """
+    
+    class Meta:
+        model = Consumo
+        fields = ['embalagem', 'quantidade', 'observacoes']
+        widgets = {
+            'observacoes': forms.Textarea(attrs={'rows': 3}),
+        }
+    
+    def __init__(self, *args, **kwargs):
+        # Extrai o user antes de chamar o __init__ pai
+        self.user = kwargs.pop('user', None)
+        super().__init__(*args, **kwargs)
+        
+        # Filtra embalagens: apenas as do utilizador E com stock > 0
+        if self.user:
+            self.fields['embalagem'].queryset = Embalagem.objects.filter(
+                medicamento__utilizador=self.user,
+                quantidade_actual__gt=0  # Só mostra embalagens com stock
+            ).select_related('medicamento').order_by('data_validade')
+        # Adiciona classes Bootstrap aos campos
+        self.fields['embalagem'].widget.attrs.update({'class': 'form-select'})
+        self.fields['quantidade'].widget.attrs.update({'class': 'form-control'})
+        self.fields['observacoes'].widget.attrs.update({'class': 'form-control'})
+    
+    def clean(self):
+        """
+        Validação personalizada: garante que a quantidade a consumir
+        não excede a quantidade disponível na embalagem.
+        """
+        cleaned_data = super().clean()
+        embalagem = cleaned_data.get('embalagem')
+        quantidade = cleaned_data.get('quantidade')
+        
+        if embalagem and quantidade:
+            if quantidade > embalagem.quantidade_actual:
+                raise forms.ValidationError(
+                    f'Quantidade indisponível. Esta embalagem tem apenas '
+                    f'{embalagem.quantidade_actual} {embalagem.unidade} disponíveis.'
+                )
+            if quantidade <= 0:
+                raise forms.ValidationError('A quantidade deve ser maior que zero.')
+        
+        return cleaned_data

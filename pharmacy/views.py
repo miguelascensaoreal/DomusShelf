@@ -12,11 +12,13 @@ Autor: Miguel Ângelo Ascensão Real
 Data: 3 de Fevereiro de 2026
 '''
 
+from datetime import timezone
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
+from django.utils import timezone
 
 from .models import Medicamento, Embalagem
-from .forms import MedicamentoForm, EmbalagemForm
+from .forms import MedicamentoForm, EmbalagemForm, ConsumoForm
 
 
 # ==============================================================================
@@ -274,3 +276,29 @@ def embalagem_eliminar(request, pk):
         'embalagem': embalagem,
     }
     return render(request, 'pharmacy/embalagem_confirmar_eliminar.html', context)
+
+@login_required
+def consumo_criar(request):
+    """
+    View para registar um novo consumo/toma.
+    Ao guardar, desconta automaticamente a quantidade da embalagem.
+    """
+    if request.method == 'POST':
+        form = ConsumoForm(request.POST, user=request.user)
+        if form.is_valid():
+            consumo = form.save(commit=False)
+            consumo.data_hora = timezone.now()  # Define a data/hora actual
+
+            # Desconta a quantidade da embalagem
+            embalagem = consumo.embalagem
+            embalagem.quantidade_actual -= consumo.quantidade
+            embalagem.save()
+            
+            # Agora guarda o consumo
+            consumo.save()
+            
+            return redirect('pharmacy:embalagem_lista')
+    else:
+        form = ConsumoForm(user=request.user)
+    
+    return render(request, 'pharmacy/consumo_form.html', {'form': form})

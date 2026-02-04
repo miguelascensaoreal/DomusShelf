@@ -48,4 +48,7 @@ urlpatterns = [
     # Página de confirmação para eliminar embalagem
     # URL completa será: /embalagens/5/eliminar/
     path('stock/<int:pk>/eliminar/', views.embalagem_eliminar, name='embalagem_eliminar'),
+
+    # Formulário para adicionar mbalagem existente
+    path('consumo/novo/', views.consumo_criar, name='consumo_criar'),
 ]
