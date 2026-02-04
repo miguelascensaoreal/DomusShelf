@@ -114,13 +114,10 @@ class EmbalagemForm(forms.ModelForm):
                 'class': 'form-control',
                 'placeholder': 'Ex: comprimidos, ml, doses',
             }),
-            'data_validade': forms.DateInput(
-                format='%d/%m/%Y',
-                attrs={
-                    'class': 'form-control',
-                    'placeholder': 'dd/mm/aaaa',
-                }
-            ),
+            'data_validade': forms.DateInput(attrs={
+            'class': 'form-control datepicker',
+            'placeholder': 'dd/mm/aaaa',
+            }),
             'lote': forms.TextInput(attrs={
                 'class': 'form-control',
                 'placeholder': 'Ex: ABC123 (opcional)',
