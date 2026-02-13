@@ -11,7 +11,7 @@ Data: 3 de Fevereiro de 2026
 from django.contrib import admin
 from django.urls import path, include
 
-from pharmacy.views import dashboard
+from pharmacy.views import dashboard, registo
 
 urlpatterns = [
     # Painel de administração do Django
@@ -23,6 +23,10 @@ urlpatterns = [
      # URLs da aplicação pharmacy (medicamentos)
     path('medicamentos/', include('pharmacy.urls')),
 
+    # Página de registo
+    path('registo/', registo, name='registo'),
+
     # Página inicial - Dashboard
     path('', dashboard, name='dashboard'),
+    
 ]

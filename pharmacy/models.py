@@ -146,7 +146,8 @@ class Embalagem(models.Model):
         Define como a embalagem aparece em texto.
         Exemplo: "Ben-u-ron - Validade: 2026-03-15 (20 comprimidos)"
         """
-        return f"{self.medicamento.nome_comercial} - Validade: {self.data_validade} ({self.quantidade_actual} {self.unidade})"
+        lote_info = f" - Lote: {self.lote}" if self.lote else ""
+        return f"{self.medicamento.nome_comercial} - Validade: {self.data_validade}{lote_info} ({self.quantidade_actual} {self.unidade})"
     
     @property
     def esta_expirada(self):

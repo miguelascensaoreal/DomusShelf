@@ -422,3 +422,21 @@ def preferencias_editar(request):
     return render(request, 'pharmacy/preferencias_form.html', {
         'form': form,
     })
+
+from django.contrib.auth.forms import UserCreationForm
+from django.contrib import messages
+
+def registo(request):
+    """
+    View para registo de novos utilizadores.
+    Não usa @login_required porque o utilizador ainda não tem conta.
+    """
+    if request.method == 'POST':
+        form = UserCreationForm(request.POST)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Conta criada com sucesso! Já pode iniciar sessão.')
+            return redirect('login')
+    else:
+        form = UserCreationForm()
+    return render(request, 'registration/registo.html', {'form': form})
