@@ -80,7 +80,7 @@ A utilização da IA não foi um processo passivo de aceitação de respostas. A
 
 **Explicação de conceitos Django:** a IA explicou de forma clara conceitos como herança de templates, decoradores, ModelForms, context processors e o padrão MTV. Cada conceito foi explicado no momento em que era necessário, integrado no contexto prático do projecto.
 
-**Estruturação do projecto:** a organização em fases incrementais (0 a 10) permitiu gerir a complexidade e manter o foco. Cada sessão tinha objectivos claros e entregáveis concretos, em paralelo do que eu ia fazendo, daí ter optado pela não utilização do Claude Caude e usar apenas o Claude Desktop.
+**Estruturação do projecto:** a organização em fases incrementais (0 a 10) permitiu gerir a complexidade e manter o foco. Cada sessão tinha objectivos claros e entregáveis concretos, em paralelo do que eu ia fazendo, daí ter optado pela não utilização do Claude Code e usar apenas o Claude Desktop.
 
 **Boas práticas de segurança:** a IA insistiu consistentemente na filtragem por utilizador em todas as views, garantindo isolamento de dados. Também sugeriu o uso de `select_related` para optimização de queries.
 

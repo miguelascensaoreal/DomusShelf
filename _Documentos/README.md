@@ -137,7 +137,7 @@ DomusShelf/
 ├── templates/              # Templates globais
 │   ├── base.html
 │   └── registration/
-├── docs/                   # Documentação
+├── _Documentos/            # Documentação
 ├── db.sqlite3              # Base de dados
 ├── requirements.txt        # Dependências Python
 └── manage.py
