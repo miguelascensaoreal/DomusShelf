@@ -57,5 +57,12 @@ urlpatterns = [
     
     # Formulário para editar preferências do utilizador
     path('preferencias/', views.preferencias_editar, name='preferencias_editar'),
+
+    # ==================== FAMÍLIA E CONVITES (v2) ====================
+    path('familia/', views.familia_detalhe, name='familia_detalhe'),
+    path('familia/convite/gerar/', views.convite_gerar, name='convite_gerar'),
+    path('familia/convite/aceitar/', views.convite_aceitar, name='convite_aceitar'),
+    path('familia/convite/<int:pk>/revogar/', views.convite_revogar, name='convite_revogar'),
+    path('familia/membro/<int:pk>/remover/', views.membro_remover, name='membro_remover'),
     
 ]

@@ -128,3 +128,17 @@ class PreferenciasAdmin(admin.ModelAdmin):
     search_fields = [
         'utilizador__username'
     ]
+
+from .models import Medicamento, Embalagem, Consumo, Preferencias, Familia, Convite
+
+# (mantém os registos existentes, e adiciona:)
+
+@admin.register(Familia)
+class FamiliaAdmin(admin.ModelAdmin):
+    list_display = ('nome', 'super_user', 'criado_em')
+
+@admin.register(Convite)
+class ConviteAdmin(admin.ModelAdmin):
+    list_display = ('codigo', 'familia', 'criado_por', 'criado_em', 'expira_em', 'usado_por', 'revogado')
+    list_filter = ('revogado',)
+    readonly_fields = ('codigo', 'criado_em')

@@ -12,6 +12,7 @@ Actualizado: Fevereiro de 2026 (v2 — Conceito de Família)
 from django.db import models
 from django.contrib.auth.models import User
 from datetime import date
+import uuid
 
 
 # =============================================================================
@@ -348,3 +349,96 @@ class Preferencias(models.Model):
     
     def __str__(self):
         return f"Preferências de {self.utilizador.username}"
+    
+class Convite(models.Model):
+    """
+    Código de convite para juntar um utilizador a uma família.
+    
+    O Super User gera um convite, que produz um código alfanumérico único.
+    O código tem prazo de validade (48h) e só pode ser usado uma vez.
+    
+    Analogia: é como um bilhete de entrada com código QR — é único,
+    tem prazo, e depois de usado fica invalidado.
+    """
+    
+    familia = models.ForeignKey(
+        Familia,
+        on_delete=models.CASCADE,
+        related_name='convites',
+        verbose_name='Família'
+    )
+    
+    # Código alfanumérico de 8 caracteres, gerado automaticamente
+    codigo = models.CharField(
+        max_length=8,
+        unique=True,
+        verbose_name='Código de Convite'
+    )
+    
+    # Quem criou o convite (deve ser o Super User)
+    criado_por = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='convites_criados',
+        verbose_name='Criado por'
+    )
+    
+    criado_em = models.DateTimeField(
+        auto_now_add=True,
+        verbose_name='Criado em'
+    )
+    
+    # Válido por 48 horas a partir da criação
+    expira_em = models.DateTimeField(
+        verbose_name='Expira em'
+    )
+    
+    # Quem usou o convite (null = ainda não foi usado)
+    usado_por = models.ForeignKey(
+        User,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='convite_usado',
+        verbose_name='Usado por'
+    )
+    
+    usado_em = models.DateTimeField(
+        null=True,
+        blank=True,
+        verbose_name='Usado em'
+    )
+    
+    # O Super User pode revogar um convite antes de ser usado
+    revogado = models.BooleanField(
+        default=False,
+        verbose_name='Revogado'
+    )
+    
+    class Meta:
+        verbose_name = 'Convite'
+        verbose_name_plural = 'Convites'
+        ordering = ['-criado_em']
+    
+    def __str__(self):
+        return f"Convite {self.codigo} para {self.familia.nome}"
+    
+    @property
+    def esta_valido(self):
+        """
+        Um convite é válido se: não expirou, não foi usado, e não foi revogado.
+        """
+        from django.utils import timezone
+        return (
+            not self.revogado
+            and self.usado_por is None
+            and self.expira_em > timezone.now()
+        )
+    
+    @staticmethod
+    def gerar_codigo():
+        """
+        Gera um código alfanumérico de 8 caracteres, em maiúsculas.
+        Usa uuid4 para garantir unicidade e depois encurta.
+        """
+        return uuid.uuid4().hex[:8].upper()
