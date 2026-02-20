@@ -153,8 +153,9 @@ class EmbalagemForm(forms.ModelForm):
         
         # Filtrar o dropdown de medicamentos para mostrar apenas os do utilizador
         if user:
-            self.fields['medicamento'].queryset = Medicamento.objects.filter(
-                utilizador=user
+            from .utils import get_medicamentos_for_user
+            self.fields['medicamento'].queryset = get_medicamentos_for_user(
+                user
             ).order_by('nome_comercial')
 
 class ConsumoForm(forms.ModelForm):
@@ -178,9 +179,11 @@ class ConsumoForm(forms.ModelForm):
         
         # Filtra embalagens: apenas as do utilizador E com stock > 0
         if self.user:
+            from .utils import get_medicamentos_for_user
+            medicamentos = get_medicamentos_for_user(self.user)
             self.fields['embalagem'].queryset = Embalagem.objects.filter(
-                medicamento__utilizador=self.user,
-                quantidade_actual__gt=0  # Só mostra embalagens com stock
+                medicamento__in=medicamentos,
+                quantidade_actual__gt=0
             ).select_related('medicamento').order_by('data_validade')
         # Adiciona classes Bootstrap aos campos
         self.fields['embalagem'].widget.attrs.update({'class': 'form-select'})

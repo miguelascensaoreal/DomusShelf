@@ -28,3 +28,4 @@ __pycache__/
 _privdocs/
 
 # Deixei o db.sqlite3 para o Professor analisar o projeto com base no banco de dados.
+db.sqlite3.v1.backup

@@ -11,6 +11,7 @@ Data: 4 de Fevereiro de 2026
 '''
 
 from datetime import date, timedelta
+from urllib import request
 from .models import Embalagem, Preferencias
 
 
@@ -40,8 +41,11 @@ def alertas_count(request):
     
     # Contar embalagens problemáticas (expiradas OU a expirar em breve)
     # Filtramos apenas embalagens com stock > 0 (não faz sentido alertar sobre vazias)
+    from .utils import get_medicamentos_for_user
+    medicamentos = get_medicamentos_for_user(request.user)
+    
     count = Embalagem.objects.filter(
-        medicamento__utilizador=request.user,
+        medicamento__in=medicamentos,
         quantidade_actual__gt=0,
         data_validade__lte=data_limite
     ).count()
