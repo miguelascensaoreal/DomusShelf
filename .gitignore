@@ -24,4 +24,7 @@ __pycache__/
 # Logs
 *.log
 
+# Documentos Master
+_privdocs/
+
 # Deixei o db.sqlite3 para o Professor analisar o projeto com base no banco de dados.
