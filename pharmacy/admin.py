@@ -129,9 +129,6 @@ class PreferenciasAdmin(admin.ModelAdmin):
         'utilizador__username'
     ]
 
-from .models import Medicamento, Embalagem, Consumo, Preferencias, Familia, Convite
-
-# (mantém os registos existentes, e adiciona:)
 
 @admin.register(Familia)
 class FamiliaAdmin(admin.ModelAdmin):
