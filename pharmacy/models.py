@@ -442,3 +442,69 @@ class Convite(models.Model):
         Usa uuid4 para garantir unicidade e depois encurta.
         """
         return uuid.uuid4().hex[:8].upper()
+
+# =============================================================================
+# Modelo RegistoActividade (NOVO na v2 — Fase 13)
+# =============================================================================
+
+class RegistoActividade(models.Model):
+    """
+    Regista cronologicamente todas as acções relevantes numa família.
+    Analogia: é o "diário de bordo" da farmácia familiar — cada acção
+    fica registada com quem a fez, quando e o que aconteceu.
+    
+    Apenas famílias têm logbook. Utilizadores sem família não geram registos.
+    """
+    
+    # Tipos de acção possíveis
+    TIPO_CHOICES = [
+        ('medicamento_criado', 'Medicamento criado'),
+        ('medicamento_editado', 'Medicamento editado'),
+        ('medicamento_eliminado', 'Medicamento eliminado'),
+        ('embalagem_criada', 'Embalagem criada'),
+        ('embalagem_editada', 'Embalagem editada'),
+        ('embalagem_eliminada', 'Embalagem eliminada'),
+        ('consumo_registado', 'Consumo registado'),
+        ('convite_gerado', 'Convite gerado'),
+        ('convite_aceite', 'Convite aceite'),
+        ('convite_revogado', 'Convite revogado'),
+        ('membro_removido', 'Membro removido'),
+    ]
+    
+    familia = models.ForeignKey(
+        Familia,
+        on_delete=models.CASCADE,
+        related_name='registos_actividade',
+        verbose_name='Família'
+    )
+    
+    utilizador = models.ForeignKey(
+        User,
+        on_delete=models.SET_NULL,
+        null=True,
+        related_name='registos_actividade',
+        verbose_name='Utilizador'
+    )
+    
+    tipo = models.CharField(
+        max_length=50,
+        choices=TIPO_CHOICES,
+        verbose_name='Tipo de Acção'
+    )
+    
+    descricao = models.TextField(
+        verbose_name='Descrição'
+    )
+    
+    criado_em = models.DateTimeField(
+        auto_now_add=True,
+        verbose_name='Data e Hora'
+    )
+    
+    class Meta:
+        verbose_name = 'Registo de Actividade'
+        verbose_name_plural = 'Registos de Actividade'
+        ordering = ['-criado_em']
+    
+    def __str__(self):
+        return f"[{self.criado_em.strftime('%d/%m/%Y %H:%M')}] {self.utilizador} — {self.get_tipo_display()}"

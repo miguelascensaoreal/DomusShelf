@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+
+{% block title %}Logbook — DomusShelf{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-10">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <span><i class="bi bi-journal-text"></i> Logbook — {{ familia.nome }}</span>
+                <span class="badge bg-secondary">{{ registos|length }} registo{{ registos|length|pluralize:"s" }}</span>
+            </div>
+            <div class="card-body">
+                {% if registos %}
+                    <div class="table-responsive">
+                        <table class="table table-sm table-hover">
+                            <thead>
+                                <tr>
+                                    <th style="width: 160px;">Data/Hora</th>
+                                    <th style="width: 130px;">Utilizador</th>
+                                    <th style="width: 150px;">Acção</th>
+                                    <th>Descrição</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for registo in registos %}
+                                <tr>
+                                    <td class="text-muted small">
+                                        {{ registo.criado_em|date:"d/m/Y H:i" }}
+                                    </td>
+                                    <td>
+                                        <i class="bi bi-person"></i>
+                                        {{ registo.utilizador.username|default:"(eliminado)" }}
+                                    </td>
+                                    <td>
+                                        {% if "criado" in registo.tipo or "criada" in registo.tipo or "registado" in registo.tipo or "aceite" in registo.tipo %}
+                                            <span class="badge bg-success">{{ registo.get_tipo_display }}</span>
+                                        {% elif "editado" in registo.tipo or "editada" in registo.tipo or "gerado" in registo.tipo %}
+                                            <span class="badge bg-info text-dark">{{ registo.get_tipo_display }}</span>
+                                        {% elif "eliminado" in registo.tipo or "eliminada" in registo.tipo or "revogado" in registo.tipo or "removido" in registo.tipo %}
+                                            <span class="badge bg-danger">{{ registo.get_tipo_display }}</span>
+                                        {% else %}
+                                            <span class="badge bg-secondary">{{ registo.get_tipo_display }}</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>{{ registo.descricao }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <div class="text-center text-muted py-4">
+                        <i class="bi bi-journal-x" style="font-size: 2rem;"></i>
+                        <p class="mt-2">Ainda não há registos de actividade nesta família.</p>
+                        <p class="small">As acções realizadas a partir de agora serão registadas aqui.</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

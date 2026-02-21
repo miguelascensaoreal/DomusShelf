@@ -10,7 +10,7 @@ Data: 3 de Fevereiro de 2026
 """
 
 from django.contrib import admin
-from .models import Medicamento, Embalagem, Consumo, Preferencias
+from .models import Medicamento, Embalagem, Consumo, Preferencias, Familia, Convite, RegistoActividade
 
 
 @admin.register(Medicamento)
@@ -142,3 +142,10 @@ class ConviteAdmin(admin.ModelAdmin):
     list_display = ('codigo', 'familia', 'criado_por', 'criado_em', 'expira_em', 'usado_por', 'revogado')
     list_filter = ('revogado',)
     readonly_fields = ('codigo', 'criado_em')
+
+@admin.register(RegistoActividade)
+class RegistoActividadeAdmin(admin.ModelAdmin):
+    list_display = ('criado_em', 'familia', 'utilizador', 'tipo', 'descricao')
+    list_filter = ('tipo', 'familia')
+    search_fields = ('descricao', 'utilizador__username')
+    readonly_fields = ('familia', 'utilizador', 'tipo', 'descricao', 'criado_em')

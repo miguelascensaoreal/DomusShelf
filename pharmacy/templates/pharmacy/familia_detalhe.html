@@ -21,6 +21,11 @@
             <div class="card-body">
                 
                 {# Lista de membros #}
+                <div class="mb-3 text-end">
+                    <a href="{% url 'pharmacy:logbook' %}" class="btn btn-outline-secondary btn-sm">
+                        <i class="bi bi-journal-text"></i> Ver Logbook da Família
+                    </a>
+                </div>
                 <h6 class="mb-3"><i class="bi bi-person-lines-fill"></i> Membros</h6>
                 <ul class="list-group mb-4">
                     {% for membro in membros %}

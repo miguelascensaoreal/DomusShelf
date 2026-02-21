@@ -58,6 +58,8 @@ urlpatterns = [
     # Formulário para editar preferências do utilizador
     path('preferencias/', views.preferencias_editar, name='preferencias_editar'),
 
+    # ==================== LOGBOOK (v2 — Fase 13) ====================
+    path('logbook/', views.logbook, name='logbook'),
     # ==================== FAMÍLIA E CONVITES (v2) ====================
     path('familia/', views.familia_detalhe, name='familia_detalhe'),
     path('familia/convite/gerar/', views.convite_gerar, name='convite_gerar'),

@@ -15,7 +15,7 @@ from .models import Medicamento, Embalagem, Consumo, Preferencias
 from .forms import MedicamentoForm, EmbalagemForm, ConsumoForm, PreferenciasForm
 from .utils import get_medicamentos_for_user, get_familia_for_user
 from .models import Medicamento, Embalagem, Consumo, Preferencias, Familia, Convite
-from .utils import get_medicamentos_for_user, get_familia_for_user, is_super_user
+from .utils import get_medicamentos_for_user, get_familia_for_user, is_super_user, registar_actividade
 
 # ==============================================================================
 # DASHBOARD
@@ -113,6 +113,11 @@ def medicamento_criar(request):
                 medicamento.familia = familia
 
             medicamento.save()
+            registar_actividade(
+                request.user,
+                'medicamento_criado',
+                f'Criou o medicamento "{medicamento.nome_comercial}"'
+            )
             return redirect('pharmacy:medicamento_lista')
     else:
         form = MedicamentoForm()
@@ -138,6 +143,11 @@ def medicamento_editar(request, pk):
         form = MedicamentoForm(request.POST, instance=medicamento)
         if form.is_valid():
             form.save()
+            registar_actividade(
+                request.user,
+                'medicamento_editado',
+                f'Editou o medicamento "{medicamento.nome_comercial}"'
+            )
             return redirect('pharmacy:medicamento_lista')
     else:
         form = MedicamentoForm(instance=medicamento)
@@ -160,7 +170,13 @@ def medicamento_eliminar(request, pk):
     medicamento = get_object_or_404(medicamentos_visiveis, pk=pk)
 
     if request.method == 'POST':
+        nome_med = medicamento.nome_comercial
         medicamento.delete()
+        registar_actividade(
+            request.user,
+            'medicamento_eliminado',
+            f'Eliminou o medicamento "{nome_med}"'
+        )
         return redirect('pharmacy:medicamento_lista')
 
     context = {
@@ -206,6 +222,13 @@ def embalagem_criar(request):
             embalagem = form.save(commit=False)
             embalagem.quantidade_actual = embalagem.quantidade_inicial
             embalagem.save()
+            registar_actividade(
+                request.user,
+                'embalagem_criada',
+                f'Adicionou embalagem de "{embalagem.medicamento.nome_comercial}" '
+                f'({embalagem.quantidade_inicial} {embalagem.unidade}, '
+                f'validade: {embalagem.data_validade.strftime("%d/%m/%Y")})'
+            )
             return redirect('pharmacy:embalagem_lista')
     else:
         form = EmbalagemForm(user=request.user)
@@ -235,6 +258,12 @@ def embalagem_editar(request, pk):
         form = EmbalagemForm(request.POST, instance=embalagem, user=request.user)
         if form.is_valid():
             form.save()
+            registar_actividade(
+                request.user,
+                'embalagem_editada',
+                f'Editou embalagem de "{embalagem.medicamento.nome_comercial}" '
+                f'(lote: {embalagem.lote or "sem lote"})'
+            )
             return redirect('pharmacy:embalagem_lista')
     else:
         form = EmbalagemForm(instance=embalagem, user=request.user)
@@ -261,7 +290,14 @@ def embalagem_eliminar(request, pk):
     )
 
     if request.method == 'POST':
+        nome_med = embalagem.medicamento.nome_comercial
+        lote_info = embalagem.lote or "sem lote"
         embalagem.delete()
+        registar_actividade(
+            request.user,
+            'embalagem_eliminada',
+            f'Eliminou embalagem de "{nome_med}" (lote: {lote_info})'
+        )
         return redirect('pharmacy:embalagem_lista')
 
     context = {
@@ -291,6 +327,12 @@ def consumo_criar(request):
             embalagem.save()
 
             consumo.save()
+            registar_actividade(
+                request.user,
+                'consumo_registado',
+                f'Registou consumo de {consumo.quantidade} {embalagem.unidade} '
+                f'de "{embalagem.medicamento.nome_comercial}"'
+            )
             return redirect('pharmacy:embalagem_lista')
     else:
         form = ConsumoForm(user=request.user)
@@ -362,6 +404,33 @@ def preferencias_editar(request):
         'form': form,
     })
 
+# ==============================================================================
+# LOGBOOK DA FAMÍLIA (v2 — Fase 13)
+# ==============================================================================
+
+@login_required
+def logbook(request):
+    """
+    Mostra o registo cronológico de acções da família.
+    Apenas membros de uma família podem ver o logbook.
+    """
+    from .models import RegistoActividade
+    
+    familia = get_familia_for_user(request.user)
+    
+    if not familia:
+        messages.info(request, 'Precisas de pertencer a uma família para ver o logbook.')
+        return redirect('pharmacy:familia_detalhe')
+    
+    registos = RegistoActividade.objects.filter(
+        familia=familia
+    ).select_related('utilizador')[:100]  # Limitar a 100 registos mais recentes
+    
+    context = {
+        'familia': familia,
+        'registos': registos,
+    }
+    return render(request, 'pharmacy/logbook.html', context)
 
 # ==============================================================================
 # FAMÍLIA E CONVITES (v2 — Fase 12)
@@ -438,7 +507,11 @@ def convite_gerar(request):
             criado_por=request.user,
             expira_em=timezone.now() + timedelta(hours=48)
         )
-        
+        registar_actividade(
+            request.user,
+            'convite_gerado',
+            f'Gerou código de convite: {convite.codigo}'
+        )
         messages.success(
             request,
             f'Convite gerado com sucesso! Código: {convite.codigo} (válido por 48 horas)'
@@ -513,6 +586,12 @@ def convite_aceitar(request):
         if count > 0:
             medicamentos_individuais.delete()
         
+        registar_actividade(
+            request.user,
+            'convite_aceite',
+            f'{request.user.username} juntou-se à família via convite {convite.codigo}'
+        )
+        
         msg = f'Juntaste-te à família "{convite.familia.nome}" com sucesso!'
         if count > 0:
             msg += f' Os teus {count} medicamento(s) individuais foram removidos.'
@@ -538,6 +617,11 @@ def convite_revogar(request, pk):
     if request.method == 'POST':
         convite.revogado = True
         convite.save()
+        registar_actividade(
+            request.user,
+            'convite_revogado',
+            f'Revogou o convite {convite.codigo}'
+        )
         messages.success(request, f'Convite {convite.codigo} revogado.')
     
     return redirect('pharmacy:familia_detalhe')
@@ -578,6 +662,11 @@ def membro_remover(request, pk):
         # Desassociar da família (medicamentos ficam na família)
         prefs_membro.familia = None
         prefs_membro.save()
+        registar_actividade(
+            request.user,
+            'membro_removido',
+            f'Removeu o membro "{membro.username}" da família'
+        )
         messages.success(request, f'O membro "{membro.username}" foi removido da família.')
     
     return redirect('pharmacy:familia_detalhe')

@@ -4,6 +4,9 @@ DomusShelf - Funções Auxiliares
 Funções utilitárias partilhadas pelas views.
 """
 
+import logging
+
+logger = logging.getLogger(__name__)
 
 def get_medicamentos_for_user(user):
     """
@@ -45,3 +48,30 @@ def is_super_user(user):
     if familia:
         return familia.super_user == user
     return False
+
+def registar_actividade(user, tipo, descricao):
+    """
+    Regista uma acção no logbook da família do utilizador.
+    Se o utilizador não pertence a uma família, não faz nada (silenciosamente).
+    
+    Parâmetros:
+        user: o utilizador que realizou a acção
+        tipo: string com o tipo (ex: 'medicamento_criado')
+        descricao: texto livre descrevendo o que aconteceu
+    """
+    from pharmacy.models import RegistoActividade
+    
+    familia = get_familia_for_user(user)
+    if not familia:
+        return  # Sem família, sem logbook
+    
+    try:
+        RegistoActividade.objects.create(
+            familia=familia,
+            utilizador=user,
+            tipo=tipo,
+            descricao=descricao
+        )
+    except Exception as e:
+        # O logbook nunca deve impedir uma acção de funcionar
+        logger.error(f"Erro ao registar actividade: {e}")
